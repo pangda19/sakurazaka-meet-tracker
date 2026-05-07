@@ -87,7 +87,7 @@
   .page { display:none; }
   .page.active { display:block; }
 
-  .app { max-width:960px; margin:0 auto; }
+  .app { max-width:1200px; margin:0 auto; }
   .app-header { text-align:center; margin-bottom:2rem; }
   .app-title { font-size:24px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:center; gap:8px; }
   .app-title span { color:var(--pink); }
@@ -173,14 +173,14 @@
   .btn-save-img { background:#0F6E56; color:white; border:none; padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; font-size:13px; font-family:inherit; }
   .btn-save-img:hover { background:#085041; }
 
-  /* FIX 1: capture-area uses consistent padding on all sides, no fit-content width */
+
   #capture-area {
     background: var(--bg3);
     padding: 24px;
     border-radius: var(--radius-lg);
   }
+  @media(max-width:480px){ #capture-area{ padding:8px; } }
 
-  /* FIX 3: schedule-wrap allows full width for capture */
   .schedule-wrap { overflow-x: auto; }
 
   .schedule-table { width:100%; border-collapse:collapse; font-size:13px; min-width:800px; background:var(--bg); }
@@ -225,7 +225,7 @@
       <button class="btn-back" id="btn-back-main" onclick="showPage('entry')">← กลับไปแก้ไข</button>
     </div>
     <div class="action-row">
-      <button class="btn-gcal" id="btn-gcal-main" onclick="exportToGCal()">📅 เพิ่มใน Google Calendar</button>
+      <button class="btn-gcal" id="btn-gcal-main" onclick="exportToGCal()" style="display:none;">📅 เพิ่มใน Google Calendar</button>
       <button class="btn-save-img" id="btn-save-img-main" onclick="saveAsImage()">⬇ บันทึกเป็นภาพ</button>
       <button class="btn-save-img" id="btn-copy-main" style="background:#4a4a48;" onclick="copyTableToClipboard()">📋 คัดลอกตาราง</button>
     </div>
@@ -326,7 +326,7 @@ const TRANSLATIONS = {
       return `⏱ Check-in ${toJST(entry)}  ·  Start ${toJST(start)} – ${toJST(end)} (JST)`;
     },
     entryTime: (t) => `${toJST(t)} (JST)`,
-    // FIX 2: "Entry" → "Check-in" in table column header
+
     thHeaderEntry: (t) => `Check-in ${toJST(t)} (JST)`,
     emptyDash: "—",
     toastCreatingImg: "Creating image...",
