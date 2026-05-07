@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://pangda19.github.io/sakurazaka-meet-tracker/" />
+<meta property="og:title" content="Sakurazaka46 Meet & Greet Tracker" />
+<meta property="og:description" content="15th Single『Lonesome rabbit / What's KAZOKU?』" />
+<meta property="og:image" content="https://pangda19.github.io/sakurazaka-meet-tracker/og-image.png" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content="https://pangda19.github.io/sakurazaka-meet-tracker/" />
+<meta name="twitter:title" content="Sakurazaka46 Meet & Greet Tracker" />
+<meta name="twitter:description" content="for 15th Single『Lonesome rabbit / What's KAZOKU?』" />
+<meta name="twitter:image" content="https://pangda19.github.io/sakurazaka-meet-tracker/og-image.png" />
+<title>Sakurazaka46 Online Meet & Greet Tracker</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:    #ffffff;
+    --bg2:   #f5f5f4;
+    --bg3:   #eeedea;
+    --text:  #1a1a19;
+    --text2: #6b6b67;
+    --border:  rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --blue-bg:    #fbe6f2;
+    --blue-text:  #7c0c55;
+    --green-bg:   #EAF3DE;
+    --green-text: #27500A;
+    --pink:   #D4537E;
+    --amber:  #BA7517;
+    --danger: #E24B4A;
+    --danger-light: #F09595;
+    --purple-bg:   #EEEDFE;
+    --purple-text: #3C3489;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#1e1e1c; --bg2:#2a2a28; --bg3:#323230;
+      --text:#f0efe9; --text2:#9a9a94;
+      --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.2);
+      --blue-bg:#4a1d35; --blue-text:#fbcce6;
+      --green-bg:#173404; --green-text:#C0DD97;
+      --purple-bg:#26215C; --purple-text:#AFA9EC;
+    }
+  }
+
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg3); color:var(--text); min-height:100vh; padding:2rem 1rem; }
+
+  .lang-toggle {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .lang-btn {
+    padding: 6px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    font-family: inherit;
+    letter-spacing: .02em;
+  }
+  .lang-btn.active {
+    background: var(--pink);
+    color: #fff;
+  }
+  .lang-btn:hover:not(.active) { background: var(--bg2); color: var(--text); }
+
+  .page { display:none; }
+  .page.active { display:block; }
+
+  .app { max-width:960px; margin:0 auto; }
+  .app-header { text-align:center; margin-bottom:2rem; }
+  .app-title { font-size:24px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .app-title span { color:var(--pink); }
+  .app-subtitle { font-size:13px; color:var(--text2); }
+
+  .single-card { background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+
+  .single-header { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; background:var(--bg2); border-bottom:0.5px solid var(--border); cursor:pointer; user-select:none; }
+  .single-header:hover { background:var(--bg3); }
+  .single-title { display:flex; align-items:center; gap:10px; }
+  .star-icon { color:var(--pink); }
+  .single-name-input { font-size:15px; font-weight:600; border:none; background:transparent; color:var(--text); outline:none; width:220px; }
+  .single-name-input:focus { border-bottom:1px solid var(--border2); }
+  .badge-count { font-size:11px; padding:2px 8px; background:var(--green-bg); color:var(--green-text); border-radius:20px; white-space:nowrap; }
+  .header-right { display:flex; align-items:center; gap:8px; }
+  .btn-delete-single { font-size:12px; padding:4px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-md); background:none; cursor:pointer; color:var(--text2); }
+  .btn-delete-single:hover { color:var(--danger); border-color:var(--danger-light); }
+  .chevron { font-size:18px; color:var(--text2); transition:transform .2s; display:inline-block; }
+  .chevron.open { transform:rotate(180deg); }
+
+  .single-body { padding:16px; }
+  .days-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media(max-width:700px){ .days-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:480px){ .days-grid{ grid-template-columns:1fr; } }
+
+  .day-card { border:0.5px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
+  .day-header { padding:8px 12px; background:var(--bg2); border-bottom:0.5px solid var(--border); }
+  .day-label { font-size:11px; font-weight:300; }
+  .day-date-display { font-size:15px; font-weight:600; color:var(--text2); margin-top:2px; }
+  .day-date-input { font-size:11px; border:0.5px solid var(--border); background:var(--bg); color:var(--text); border-radius:4px; padding:2px 4px; margin-top:4px; width:100%; cursor:pointer; }
+
+  .boo-list { padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .boo-item { border:0.5px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
+  .boo-header { display:flex; align-items:center; gap:8px; padding:6px 10px; background:var(--bg); border-bottom:0.5px solid var(--border); cursor:pointer; }
+  .boo-header:hover { background:var(--bg2); }
+  .boo-num { font-size:11px; font-weight:600; background:var(--blue-bg); color:var(--blue-text); padding:2px 7px; border-radius:4px; flex-shrink:0; }
+  .boo-time { font-size:12px; color:var(--text2); flex:1; }
+  .boo-summary { font-size:11px; color:var(--text2); max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .boo-chev { font-size:13px; color:var(--text2); transition:transform .2s; display:inline-block; }
+  .boo-chev.open { transform:rotate(180deg); }
+  .boo-content { padding:8px; background:var(--bg2); }
+  .time-info { font-size:11px; color:var(--text2); margin-bottom:8px; padding:4px 8px; background:var(--bg); border-radius:4px; }
+
+  .member-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
+  select, input[type="text"], input[type="date"] { font-family:inherit; font-size:13px; background:var(--bg); color:var(--text); border:0.5px solid var(--border2); border-radius:var(--radius-md); padding:5px 8px 5px 8px; outline:none; }
+  select:focus, input:focus { border-color:var(--blue-text); }
+  .sel-name { flex:1; min-width:120px; ; padding-right:12px; }
+  .sel-sheets { width:76px; flex-shrink:0; }
+  .btn-del-member { background:none; border:none; cursor:pointer; color:var(--text2); padding:4px 8px; font-size:16px; line-height:1; border-radius:4px; flex-shrink:0; margin-left:auto; }
+  .btn-del-member:hover { color:var(--danger); background:rgba(226,75,74,.08); }
+  .btn-add-member { width:100%; font-size:12px; color:var(--text2); background:none; border:0.5px dashed var(--border2); border-radius:var(--radius-md); padding:5px 10px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; }
+  .btn-add-member:hover { background:var(--bg); color:var(--text); }
+
+  .single-footer { padding:10px 16px; border-top:0.5px solid var(--border); background:var(--bg2); display:flex; gap:8px; align-items:center; }
+  .btn-view-table { font-size:12px; padding:6px 16px; border:none; border-radius:var(--radius-md); background:#D4537E; color:#fff; cursor:pointer; font-family:inherit; font-weight:600; letter-spacing:.02em; }
+  .btn-view-table:hover { background:#b8416a; }
+
+  .btn-add-single { width:100%; padding:13px; border:0.5px dashed var(--border2); border-radius:var(--radius-lg); background:none; cursor:pointer; font-size:14px; color:var(--text2); display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px; font-family:inherit; }
+  .btn-add-single:hover { background:var(--bg2); color:var(--text); }
+
+  .tbl-page-header { display:flex; align-items:center; gap:12px; margin-bottom:1rem; }
+  .btn-back { font-size:13px; padding:6px 14px; border:0.5px solid var(--border2); border-radius:var(--radius-md); background:var(--bg); color:var(--text2); cursor:pointer; font-family:inherit; flex-shrink:0; }
+  .btn-back:hover { color:var(--text); }
+  .tbl-page-title { font-size:20px; font-weight:600; }
+  .tbl-page-subtitle { font-size:12px; color:var(--text2); margin-top:2px; }
+
+  .action-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:1.5rem; }
+  .btn-gcal { background:#185FA5; color:white; border:none; padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; font-size:13px; font-family:inherit; }
+  .btn-gcal:hover { background:#0C447C; }
+  .btn-save-img { background:#0F6E56; color:white; border:none; padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; font-size:13px; font-family:inherit; }
+  .btn-save-img:hover { background:#085041; }
+
+  /* FIX 1: capture-area uses consistent padding on all sides, no fit-content width */
+  #capture-area {
+    background: var(--bg3);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* FIX 3: schedule-wrap allows full width for capture */
+  .schedule-wrap { overflow-x: auto; }
+
+  .schedule-table { width:100%; border-collapse:collapse; font-size:13px; min-width:800px; background:var(--bg); }
+  .schedule-table th,
+  .schedule-table td { border:0.5px solid var(--border2); padding:10px 12px; text-align:left; vertical-align:top; }
+  .schedule-table thead th { background:var(--bg2); font-weight:600; font-size:12px; color:var(--text2); letter-spacing:.03em; white-space:normal; }
+  .schedule-table thead th.boo-col { text-align:center; }
+
+  .td-day-cell { background:var(--bg2); width:140px; }
+  .td-day-num { font-weight:700; font-size:13px; color:var(--blue-text); white-space:nowrap; }
+  .td-day-date { font-size:12px; color:var(--text); font-weight:600; margin-top:3px; white-space:nowrap; }
+
+  .td-boo-cell { min-width:160px; vertical-align:top; }
+  .member-chip { display: inline-block; font-size: 12px; padding: 5px 10px; border-radius: 20px; margin: 3px; font-weight: 600; white-space: nowrap; }
+  .empty-dash { color:var(--text2); font-size:12px; }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2C2C2A; color:white; padding:10px 22px; border-radius:var(--radius-md); font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="lang-toggle">
+  <button class="lang-btn active" id="btn-lang-th" onclick="setLang('th')"> ไทย</button>
+  <button class="lang-btn" id="btn-lang-en" onclick="setLang('en')"> EN</button>
+</div>
+
+<div class="page active" id="page-entry">
+  <div class="app" id="app-entry">
+    <div class="app-header">
+      <div class="app-title" id="app-title-text">Sakurazaka46 Online Meet &amp; Greet Tracker</div>
+      <div class="app-subtitle" id="app-subtitle-text">15th Double A-side Single『Lonesome rabbit / What's "KAZOKU"?』</div>
+    </div>
+    <div id="singles-container"></div>
+    <button class="btn-add-single" id="btn-add-single-main" onclick="addSingle()">＋ เพิ่มซิงเกิลใหม่</button>
+  </div>
+</div>
+
+<div class="page" id="page-table">
+  <div class="app" id="app-table">
+    <div class="tbl-page-header">
+      <button class="btn-back" id="btn-back-main" onclick="showPage('entry')">← กลับไปแก้ไข</button>
+    </div>
+    <div class="action-row">
+      <button class="btn-gcal" id="btn-gcal-main" onclick="exportToGCal()">📅 เพิ่มใน Google Calendar</button>
+      <button class="btn-save-img" id="btn-save-img-main" onclick="saveAsImage()">⬇ บันทึกเป็นภาพ</button>
+      <button class="btn-save-img" id="btn-copy-main" style="background:#4a4a48;" onclick="copyTableToClipboard()">📋 คัดลอกตาราง</button>
+    </div>
+    <div id="capture-area">
+      <div style="margin-bottom: 1.5rem;">
+        <div class="tbl-page-title">
+          <span id="tbl-title-prefix">ตารางมีตทั้งหมดของ </span><span id="tbl-single-name">—</span>
+        </div>
+        <div class="tbl-page-subtitle" id="tbl-single-subtitle">
+          15th Double A-side Single『Lonesome rabbit / What's "KAZOKU"?』
+        </div>
+      </div>
+      <div class="schedule-wrap" id="schedule-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// Helper for JST Conversion
+function toJST(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  return `${(h + 2)}:${m.toString().padStart(2, '0')}`;
+}
+
+const TRANSLATIONS = {
+  th: {
+    appTitle: "Sakurazaka46 Online Meet & Greet Tracker",
+    appSubtitle: "15th Double A-side Single『Lonesome rabbit / What's \"KAZOKU\"?』",
+    addSingle: "＋ เพิ่มซิงเกิลใหม่",
+    defaultSingleName: "Single",
+    badgeCount: (n) => `♥ ${n} รายการ`,
+    deleteSingle: "🗑 ลบ",
+    confirmDelete: "ลบซิงเกิลนี้?",
+    viewTable: "♥ ดูตารางมีต",
+    backBtn: "← กลับไปแก้ไข",
+    gcalBtn: "📅 เพิ่มใน Google Calendar",
+    saveImgBtn: "⬇ บันทึกเป็นภาพ",
+    copyBtn: "📋 คัดลอกตาราง",
+    tblTitlePrefix: "ตารางมีตทั้งหมดของ ",
+    colDay: "วันมีต",
+    sessionLabel: (n) => `ครั้งที่ ${n}`,
+    dayLabel: (n) => `ครั้งที่ ${n}`,
+    booLabel: (n) => `บุ ${n}`,
+    noDateSelected: "ยังไม่ได้เลือกวัน",
+    addMember: "＋ เพิ่มเมมเบอร์",
+    // FIX 2: เปลี่ยน Entry → Check-in ในภาษาไทยด้วย (หัวตาราง)
+    timeInfo: (entry, chat) => `⏱ ตรวจบัตร ${entry} น.  ·  คุย ${chat}`,
+    entryTime: (t) => `${t} น.`,
+    thHeaderEntry: (t) => `Check-in ${t} น.`,
+    emptyDash: "—",
+    toastCreatingImg: "กำลังสร้างภาพ...",
+    toastImgSaved: "บันทึกภาพเรียบร้อย!",
+    toastNoData: "ยังไม่มีข้อมูล — ใส่เมมเบอร์ก่อนนะ",
+    toastCalOpened: (n) => `เปิด ${n} event ใน Google Calendar`,
+    toastCopied: "คัดลอกตารางแล้ว! นำไปกด 'วาง' ใน Sheets ได้เลย 🌸",
+    toastCopyFail: "คัดลอกไม่สำเร็จ",
+    toastNoBrowser: "เบราว์เซอร์ไม่รองรับการคัดลอก",
+    toastNoTable: "ไม่พบตาราง — ลองกดดูตารางก่อนนะ",
+    sheetUnit: (n) => `${n} ใบ`,
+    gcalTitle: (sName, booN, ms) => `[มีต] ${sName} บุ${booN}: ${ms}`,
+    gcalEntry: (t) => `เข้าบุ ${t} น.`,
+    gcalWith: "คุยกับ",
+    imgFilename: (name) => `miit-schedule-${name}.png`,
+    defaultDates: [
+      { label:"วันอาทิตย์ที่ 14 มิถุนายน", value:"2026-06-14" },
+      { label:"วันอาทิตย์ที่ 21 มิถุนายน", value:"2026-06-21" },
+      { label:"วันเสาร์ที่ 27 มิถุนายน", value:"2026-06-27" },
+      { label:"วันเสาร์ที่ 4 กรกฎาคม", value:"2026-07-04" },
+      { label:"วันเสาร์ที่ 12 กันยายน", value:"2026-09-12" },
+      { label:"วันอาทิตย์ที่ 13 กันยายน", value:"2026-09-13" },
+    ],
+  },
+  en: {
+    appTitle: "Sakurazaka46 Online Meet & Greet Tracker",
+    appSubtitle: "15th Double A-side Single『Lonesome rabbit / What's \"KAZOKU\"?』",
+    addSingle: "＋ Add New Single",
+    defaultSingleName: "Single",
+    badgeCount: (n) => `♥ ${n} booking${n!==1?"s":""}`,
+    deleteSingle: "🗑 Delete",
+    confirmDelete: "Delete this single?",
+    viewTable: "♥ View Schedule",
+    backBtn: "← Back to Edit",
+    gcalBtn: "📅 Add to Google Calendar",
+    saveImgBtn: "⬇ Save as Image",
+    copyBtn: "📋 Copy Table",
+    tblTitlePrefix: "Meet & Greet Schedule — ",
+    colDay: "Meet Date",
+    sessionLabel: (n) => `Session ${n}`,
+    dayLabel: (n) => `Session ${n}`,
+    booLabel: (n) => `Round ${n}`,
+    noDateSelected: "No date selected",
+    addMember: "＋ Add Member",
+    timeInfo: (entry, chat) => {
+      const [start, end] = chat.split(' – ');
+      return `⏱ Check-in ${toJST(entry)}  ·  Start ${toJST(start)} – ${toJST(end)} (JST)`;
+    },
+    entryTime: (t) => `${toJST(t)} (JST)`,
+    // FIX 2: "Entry" → "Check-in" in table column header
+    thHeaderEntry: (t) => `Check-in ${toJST(t)} (JST)`,
+    emptyDash: "—",
+    toastCreatingImg: "Creating image...",
+    toastImgSaved: "Image saved!",
+    toastNoData: "No data yet — add members first",
+    toastCalOpened: (n) => `Opened ${n} event${n!==1?"s":""} in Google Calendar`,
+    toastCopied: "Table copied! Paste into Sheets 🌸",
+    toastCopyFail: "Copy failed",
+    toastNoBrowser: "Browser does not support copy",
+    toastNoTable: "Table not found — open schedule view first",
+    sheetUnit: (n) => `${n} sheet${n!==1?"s":""}`,
+    gcalTitle: (sName, booN, ms) => `[Meet] ${sName} Slot ${booN}: ${ms}`,
+    gcalEntry: (t) => `Check-in at ${toJST(t)} (JST)`,
+    gcalWith: "Start with",
+    imgFilename: (name) => `meet-schedule-${name}.png`,
+    defaultDates: [
+      { label:"Sunday, June 14", value:"2026-06-14" },
+      { label:"Sunday, June 21", value:"2026-06-21" },
+      { label:"Saturday, June 27", value:"2026-06-27" },
+      { label:"Saturday, July 4", value:"2026-07-04" },
+      { label:"Saturday, Sep 12", value:"2026-09-12" },
+      { label:"Sunday, Sep 13", value:"2026-09-13" },
+    ],
+  }
+};
+
+const TH_DAYS = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+const TH_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+const EN_DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const EN_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+function formatDateTH(val) {
+  if (!val) return "";
+  const d = new Date(val + "T12:00:00");
+  return `วัน${TH_DAYS[d.getDay()]}ที่ ${d.getDate()} ${TH_MONTHS[d.getMonth()]}`;
+}
+function formatDateEN(val) {
+  if (!val) return "";
+  const d = new Date(val + "T12:00:00");
+  return `${EN_DAYS[d.getDay()]}, ${EN_MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+function formatDate(val) { return lang === "th" ? formatDateTH(val) : formatDateEN(val); }
+
+let lang = localStorage.getItem("sakura_lang") || "th";
+
+function t(key, ...args) {
+  const val = TRANSLATIONS[lang][key];
+  return typeof val === "function" ? val(...args) : val;
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem("sakura_lang", l);
+  document.getElementById("btn-lang-th").classList.toggle("active", l === "th");
+  document.getElementById("btn-lang-en").classList.toggle("active", l === "en");
+  updateStaticUI();
+  data.forEach(s => s.days.forEach(d => { if (d.date) d.dateLabel = formatDate(d.date); }));
+  render();
+  if (document.getElementById("page-table").classList.contains("active") && currentSingleId) {
+    const single = data.find(s => s.id === currentSingleId);
+    if (single) renderTablePage(single);
+  }
+}
+
+function updateStaticUI() {
+  document.getElementById("app-title-text").textContent = t("appTitle");
+  document.getElementById("app-subtitle-text").textContent = t("appSubtitle");
+  document.getElementById("btn-add-single-main").textContent = t("addSingle");
+  document.getElementById("btn-back-main").textContent = t("backBtn");
+  document.getElementById("btn-gcal-main").textContent = t("gcalBtn");
+  document.getElementById("btn-save-img-main").textContent = t("saveImgBtn");
+  document.getElementById("btn-copy-main").textContent = t("copyBtn");
+  document.getElementById("tbl-title-prefix").textContent = t("tblTitlePrefix");
+  document.getElementById("tbl-single-subtitle").textContent = t("appSubtitle");
+}
+
+const BOO_TIMES = [
+  { num:1, entry:"8:45", chat:"9:00 – 10:00" },
+  { num:2, entry:"10:15", chat:"10:30 – 11:30" },
+  { num:3, entry:"12:15", chat:"12:30 – 13:30" },
+  { num:4, entry:"13:45", chat:"14:00 – 15:00" },
+  { num:5, entry:"15:15", chat:"15:30 – 16:30" },
+  { num:6, entry:"16:45", chat:"17:00 – 18:00" },
+];
+
+const MEMBERS = [
+  "Endo Hikari","Ozono Rei","Onuma Akiho","Kousaka Marino","Tamura Hono",
+  "Fujiyoshi Karin","Masumoto Kira","Matsuda Rina","Morita Hikaru","Moriya Rena",
+  "Yamasaki Ten","Ishimori Rika","Endo Riko","Odakura Reina","Kojima Nagisa",
+  "Taniguchi Airi","Nakashima Yuzuki","Matono Mio","Mukai Itoha","Murai Yu",
+  "Murayama Miu","Yamashita Shizuki","Asai Konomi","Inaguma Hina","Katsumata Haru",
+  "Sato Neo","Nakagawa Chihiro","Matsumoto Wako","Meguro Hiiro","Yamakawa Ui",
+  "Yamada Momomi"
+];
+
+const memberColors = {
+  "Endo Hikari":      { bg:"#f6e6ff", text:"#7a30a5" },
+  "Ozono Rei":        { bg:"#d9cfff", text:"#584d82" },
+  "Onuma Akiho":      { bg:"#fffae0", text:"#3ea7c8" },
+  "Kousaka Marino":   { bg:"#8ccc53", text:"#407610" },
+  "Tamura Hono":      { bg:"#b1e9fa", text:"#127d9e" },
+  "Fujiyoshi Karin":  { bg:"#e2daff", text:"#473881" },
+  "Masumoto Kira":    { bg:"#ffe9d0", text:"#d57812" },
+  "Matsuda Rina":     { bg:"#fffade", text:"#0d783e" },
+  "Morita Hikaru":    { bg:"#ffdede", text:"#095389" },
+  "Moriya Rena":      { bg:"#fffadd", text:"#c12379" },
+  "Yamasaki Ten":     { bg:"#eafff4", text:"#02ae51" },
+  "Ishimori Rika":    { bg:"#ffe2f2", text:"#02853e" },
+  "Endo Riko":        { bg:"#ffedfa", text:"#352b5c" },
+  "Odakura Reina":    { bg:"#ffeefb", text:"#ff2ccd" },
+  "Kojima Nagisa":    { bg:"#fff7ee", text:"#0a6683" },
+  "Taniguchi Airi":   { bg:"#ffe0e0", text:"#370b69" },
+  "Nakashima Yuzuki": { bg:"#ffe7f4", text:"#e22b8f" },
+  "Matono Mio":       { bg:"#e9faff", text:"#004382" },
+  "Mukai Itoha":      { bg:"#effff9", text:"#004382" },
+  "Murai Yu":         { bg:"#faf2ff", text:"#154467" },
+  "Murayama Miu":     { bg:"#faeaff", text:"#5e0d79" },
+  "Yamashita Shizuki":{ bg:"#ffe7e7", text:"#064973" },
+  "Asai Konomi":      { bg:"#e9fff7", text:"#b40303" },
+  "Inaguma Hina":     { bg:"#ffefde", text:"#1e654b" },
+  "Katsumata Haru":   { bg:"#ffeefa", text:"#850000" },
+  "Sato Neo":         { bg:"#ffe8f9", text:"#05607c" },
+  "Nakagawa Chihiro": { bg:"#fffcec", text:"#34256e" },
+  "Matsumoto Wako":   { bg:"#e8fff7", text:"#28604b" },
+  "Meguro Hiiro":     { bg:"#fff1fb", text:"#af0d89" },
+  "Yamakawa Ui":      { bg:"#eefcff", text:"#31758a" },
+  "Yamada Momomi":    { bg:"#e3f8ff", text:"#473687" },
+};
+
+let data = [], singleCount = 0, openSingles = {}, openBoos = {};
+let currentSingleId = null;
+
+function uid() { return Math.random().toString(36).slice(2,9); }
+
+function saveToLocal() {
+  const state = { data, singleCount, openSingles, openBoos, lang };
+  localStorage.setItem("sakura_miit_storage", JSON.stringify(state));
+}
+
+function loadFromLocal() {
+  const saved = localStorage.getItem("sakura_miit_storage");
+  if (saved) {
+    const state = JSON.parse(saved);
+    data = state.data;
+    singleCount = state.singleCount;
+    openSingles = state.openSingles || {};
+    openBoos = state.openBoos || {};
+    if (state.lang) { lang = state.lang; }
+    return true;
+  }
+  return false;
+}
+
+function getMemberColor(name) { return memberColors[name] || { bg:"#f5f5f4", text:"#6b6b67" }; }
+
+function newSingle() {
+  if (singleCount === 0) singleCount = 14;
+  singleCount++;
+  const defaultDates = TRANSLATIONS[lang].defaultDates;
+  return {
+    id: uid(),
+    name: `${t("defaultSingleName")} ${singleCount}`,
+    days: defaultDates.map((dd, i) => ({
+      id: uid(),
+      label: t("dayLabel", i + 1),
+      date: dd.value,
+      dateLabel: dd.label,
+      boos: BOO_TIMES.map(() => ({ id: uid(), members: [] }))
+    }))
+  };
+}
+
+function addSingle() { const s = newSingle(); data.push(s); openSingles[s.id] = true; render(); }
+function deleteSingle(sid) { if (!confirm(t("confirmDelete"))) return; data = data.filter(s => s.id !== sid); render(); }
+function toggleSingle(sid) { openSingles[sid] = !openSingles[sid]; render(); }
+function toggleBoo(key) { openBoos[key] = !openBoos[key]; render(); }
+
+function addMember(sid, di, bi) { data.find(s=>s.id===sid).days[di].boos[bi].members.push({id:uid(),name:MEMBERS[0],sheets:1}); render(); }
+function removeMember(sid, di, bi, mid) { const b=data.find(s=>s.id===sid).days[di].boos[bi]; b.members=b.members.filter(m=>m.id!==mid); render(); }
+function updateMemberName(sid,di,bi,mid,v) { data.find(s=>s.id===sid).days[di].boos[bi].members.find(m=>m.id===mid).name=v; render(); }
+function updateMemberSheets(sid,di,bi,mid,v){ data.find(s=>s.id===sid).days[di].boos[bi].members.find(m=>m.id===mid).sheets=parseInt(v); render(); }
+function updateSingleName(sid, v) { data.find(s=>s.id===sid).name=v; saveToLocal(); }
+function updateDayDate(sid, di, v) { const d=data.find(s=>s.id===sid).days[di]; d.date=v; d.dateLabel=formatDate(v); render(); }
+
+function getBooSummary(boo) {
+  if (!boo.members.length) return "";
+  return boo.members.map(m => `${m.name.split(" ")[0]} ${t("sheetUnit", m.sheets)}`).join(", ");
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function buildSelect(options, selected, cls, onChange) {
+  const sel = document.createElement("select");
+  sel.className = cls;
+  options.forEach(o => {
+    const opt = document.createElement("option");
+    opt.value = o; opt.textContent = o;
+    if (o === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.onchange = e => onChange(e.target.value);
+  return sel;
+}
+
+function showPage(page) {
+  document.getElementById("page-entry").classList.toggle("active", page === "entry");
+  document.getElementById("page-table").classList.toggle("active", page === "table");
+}
+
+function openTableView(sid) {
+  currentSingleId = sid;
+  const single = data.find(s => s.id === sid);
+  document.getElementById("tbl-single-name").textContent = single.name;
+  document.getElementById("tbl-title-prefix").textContent = t("tblTitlePrefix"); 
+  renderTablePage(single);
+  showPage("table");
+}
+
+function renderTablePage(single) {
+  const wrap = document.getElementById("schedule-wrap");
+  wrap.innerHTML = "";
+  const tbl = document.createElement("table");
+  tbl.className = "schedule-table";
+
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  const thDay = document.createElement("th");
+  thDay.textContent = t("colDay");
+  thDay.style.width = "140px";
+  hr.appendChild(thDay);
+  BOO_TIMES.forEach(bt => {
+    const th = document.createElement("th");
+    th.className = "boo-col";
+
+    const [start, end] = bt.chat.split(' – ');
+    // FIX 2: Both TH and EN now use Check-in (via thHeaderEntry translation key)
+    const displayTime = lang === 'th'
+      ? `${t("thHeaderEntry", bt.entry)}<br>${bt.chat}`
+      : `${t("thHeaderEntry", bt.entry)}<br>Start ${toJST(start)} – ${toJST(end)}`;
+
+    th.innerHTML = `
+      <div style="font-size:13px;margin-bottom:4px;">${t("booLabel", bt.num)}</div>
+      <span style="display:block;font-size:10px;font-weight:400;line-height:1.4;">
+        ${displayTime}
+      </span>`;
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  single.days.forEach((day, di) => {
+    const tr = document.createElement("tr");
+    const tdDay = document.createElement("td");
+    tdDay.className = "td-day-cell";
+    tdDay.innerHTML = `<div class="td-day-num">${t("sessionLabel", di+1)}</div><div class="td-day-date">${day.dateLabel || t("emptyDash")}</div>`;
+    tr.appendChild(tdDay);
+    day.boos.forEach(boo => {
+      const td = document.createElement("td");
+      td.className = "td-boo-cell";
+      if (boo.members.length) {
+        boo.members.forEach((m, idx) => {
+          const chip = document.createElement("span");
+          chip.className = "member-chip";
+          chip.textContent = `${m.name} [${t("sheetUnit", m.sheets)}]`;
+          const colors = getMemberColor(m.name);
+          chip.style.backgroundColor = colors.bg;
+          chip.style.color = colors.text;
+          chip.style.border = `1px solid ${colors.text}33`;
+          td.appendChild(chip);
+          if (idx < boo.members.length - 1) {
+            td.appendChild(document.createElement("br"));
+          }
+        });
+      } else {
+        td.innerHTML = `<span class="empty-dash">${t("emptyDash")}</span>`;
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+  wrap.appendChild(tbl);
+}
+
+function render() {
+  document.getElementById("btn-add-single-main").textContent = t("addSingle");
+  const container = document.getElementById("singles-container");
+  container.innerHTML = "";
+
+  data.forEach(single => {
+    const isOpen = !!openSingles[single.id];
+    const total = single.days.reduce((a,d) => a + d.boos.reduce((b,bo) => b + bo.members.length, 0), 0);
+    const card = document.createElement("div"); card.className = "single-card";
+    const hdr = document.createElement("div"); hdr.className = "single-header";
+    hdr.onclick = e => { if (!["INPUT","BUTTON"].includes(e.target.tagName)) toggleSingle(single.id); };
+
+    const titleDiv = document.createElement("div"); titleDiv.className = "single-title";
+    titleDiv.innerHTML = `<span class="star-icon">🌸</span>`;
+    const nameInp = document.createElement("input");
+    nameInp.type = "text"; nameInp.className = "single-name-input"; nameInp.value = single.name;
+    nameInp.oninput = e => updateSingleName(single.id, e.target.value);
+    titleDiv.appendChild(nameInp);
+    if (total > 0) {
+      const b = document.createElement("span"); b.className = "badge-count";
+      b.textContent = t("badgeCount", total); titleDiv.appendChild(b);
+    }
+
+    const rightDiv = document.createElement("div"); rightDiv.className = "header-right";
+    const delBtn = document.createElement("button"); delBtn.className = "btn-delete-single";
+    delBtn.textContent = t("deleteSingle");
+    delBtn.onclick = e => { e.stopPropagation(); deleteSingle(single.id); };
+    const chev = document.createElement("span");
+    chev.className = "chevron" + (isOpen ? " open" : ""); chev.textContent = "▾";
+    rightDiv.appendChild(delBtn); rightDiv.appendChild(chev);
+    hdr.appendChild(titleDiv); hdr.appendChild(rightDiv); card.appendChild(hdr);
+
+    if (isOpen) {
+      const body = document.createElement("div"); body.className = "single-body";
+      const grid = document.createElement("div"); grid.className = "days-grid";
+      single.days.forEach((day, di) => {
+        const dc = document.createElement("div"); dc.className = "day-card";
+        const dh = document.createElement("div"); dh.className = "day-header";
+        dh.innerHTML = `<div class="day-label">${t("dayLabel", di+1)}</div><div class="day-date-display">${day.dateLabel || t("noDateSelected")}</div>`;
+        const dateInp = document.createElement("input");
+        dateInp.type = "date"; dateInp.className = "day-date-input"; dateInp.value = day.date;
+        dateInp.oninput = e => updateDayDate(single.id, di, e.target.value);
+        dh.appendChild(dateInp); dc.appendChild(dh);
+
+        const bl = document.createElement("div"); bl.className = "boo-list";
+        day.boos.forEach((boo, bi) => {
+          const bt = BOO_TIMES[bi];
+          const bKey = `${single.id}-${di}-${bi}`;
+          const bOpen = !!openBoos[bKey];
+          const sum = getBooSummary(boo);
+
+          const bi_el = document.createElement("div"); bi_el.className = "boo-item";
+          const bh = document.createElement("div"); bh.className = "boo-header";
+          bh.innerHTML = `
+            <span class="boo-num">${t("booLabel", bt.num)}</span>
+            <span class="boo-time">${t("entryTime", bt.entry)}</span>
+            ${sum ? `<span class="boo-summary">${sum}</span>` : ""}
+            <span class="boo-chev${bOpen ? " open" : ""}">▾</span>`;
+          bh.onclick = () => toggleBoo(bKey);
+          bi_el.appendChild(bh);
+
+          if (bOpen) {
+            const bc = document.createElement("div"); bc.className = "boo-content";
+            const ti = document.createElement("div"); ti.className = "time-info";
+            ti.textContent = t("timeInfo", bt.entry, bt.chat);
+            bc.appendChild(ti);
+            boo.members.forEach(m => {
+              const row = document.createElement("div"); row.className = "member-row";
+              const ns = buildSelect(MEMBERS, m.name, "sel-name", val => updateMemberName(single.id, di, bi, m.id, val));
+              const sheetOptions = Array.from({length:20}, (_,i) => t("sheetUnit", i+1));
+              const ss = buildSelect(sheetOptions, t("sheetUnit", m.sheets), "sel-sheets", val => updateMemberSheets(single.id, di, bi, m.id, parseInt(val)));
+              const db = document.createElement("button"); db.className = "btn-del-member"; db.textContent = "✕";
+              db.onclick = () => removeMember(single.id, di, bi, m.id);
+              row.appendChild(ns); row.appendChild(ss); row.appendChild(db);
+              bc.appendChild(row);
+            });
+            const ab = document.createElement("button"); ab.className = "btn-add-member";
+            ab.textContent = t("addMember");
+            ab.onclick = () => addMember(single.id, di, bi);
+            bc.appendChild(ab);
+            bi_el.appendChild(bc);
+          }
+          bl.appendChild(bi_el);
+        });
+        dc.appendChild(bl); grid.appendChild(dc);
+      });
+      body.appendChild(grid); card.appendChild(body);
+    }
+    const footer = document.createElement("div"); footer.className = "single-footer";
+    const tblBtn = document.createElement("button"); tblBtn.className = "btn-view-table";
+    tblBtn.textContent = t("viewTable");
+    tblBtn.onclick = () => openTableView(single.id);
+    footer.appendChild(tblBtn); card.appendChild(footer);
+    container.appendChild(card);
+  });
+  saveToLocal();
+}
+
+function exportToGCal() {
+  const single = data.find(s => s.id === currentSingleId);
+  if (!single) return;
+  const events = [];
+  single.days.forEach(day => {
+    if (!day.date) return;
+    day.boos.forEach((boo, bi) => {
+      if (!boo.members.length) return;
+      const bt = BOO_TIMES[bi];
+      const ms = boo.members.map(m => `${m.name}(${t("sheetUnit", m.sheets)})`).join(", ");
+      const [sH,sM] = bt.chat.split(" – ")[0].split(":").map(Number);
+      const [eH,eM] = bt.chat.split(" – ")[1].split(":").map(Number);
+      const ds = day.date.replace(/-/g,"");
+      const pad = n => String(n).padStart(2,"0");
+      events.push(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t("gcalTitle", single.name, bt.num, ms))}&dates=${ds}T${pad(sH)}${pad(sM)}00/${ds}T${pad(eH)}${pad(eM)}00&details=${encodeURIComponent(`${t("gcalEntry", bt.entry)}\n${t("gcalWith")}: ${ms}`)}`);
+    });
+  });
+  if (!events.length) { showToast(t("toastNoData")); return; }
+  events.forEach((url, i) => setTimeout(() => window.open(url, "_blank"), i * 350));
+  showToast(t("toastCalOpened", events.length));
+}
+
+// FIX 3 & 4: Rewritten saveAsImage — fully expands table, uses correct language translations
+function saveAsImage() {
+  const captureTarget = document.getElementById("capture-area");
+  const scheduleWrap  = document.getElementById("schedule-wrap");
+  const singleName    = document.getElementById("tbl-single-name").textContent;
+  const table = scheduleWrap.querySelector(".schedule-table");
+
+  if (!table) { showToast(t("toastNoData")); return; }
+  showToast(t("toastCreatingImg"));
+
+  // FIX 4: Snapshot the current language at capture time so filename is correct
+  const captureLang = lang;
+
+  const prevWrapOverflow = scheduleWrap.style.overflow;
+  const prevWrapMinWidth = scheduleWrap.style.minWidth;
+  const prevWrapWidth    = scheduleWrap.style.width;
+
+  const tableFullWidth = table.scrollWidth;
+  scheduleWrap.style.overflow  = "visible";
+  scheduleWrap.style.minWidth  = tableFullWidth + "px";
+  scheduleWrap.style.width     = tableFullWidth + "px";
+
+  const captureFullWidth = tableFullWidth + 48;
+  const prevCaptureWidth    = captureTarget.style.width;
+  const prevCaptureOverflow = captureTarget.style.overflow;
+  captureTarget.style.width    = captureFullWidth + "px";
+  captureTarget.style.overflow = "visible";
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const bgColor = getComputedStyle(document.documentElement)
+        .getPropertyValue("--bg3").trim() || "#eeedea";
+
+      html2canvas(captureTarget, {
+        scale: 2,
+        backgroundColor: bgColor,
+        logging: false,
+        useCORS: true,
+        width:       captureTarget.offsetWidth,
+        height:      captureTarget.scrollHeight,
+        scrollX:     0,
+        scrollY:     0,
+        windowWidth:  captureFullWidth + 100,
+        windowHeight: captureTarget.scrollHeight + 100,
+      }).then(canvas => {
+        // Restore original styles
+        scheduleWrap.style.overflow  = prevWrapOverflow;
+        scheduleWrap.style.minWidth  = prevWrapMinWidth;
+        scheduleWrap.style.width     = prevWrapWidth;
+        captureTarget.style.width    = prevCaptureWidth;
+        captureTarget.style.overflow = prevCaptureOverflow;
+
+        const a = document.createElement("a");
+        const filename = captureLang === "th"
+          ? `miit-schedule-${singleName}.png`
+          : `meet-schedule-${singleName}.png`;
+        a.download = filename;
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+        showToast(t("toastImgSaved"));
+      }).catch(err => {
+        console.error("html2canvas error:", err);
+        // Restore on error too
+        scheduleWrap.style.overflow  = prevWrapOverflow;
+        scheduleWrap.style.minWidth  = prevWrapMinWidth;
+        scheduleWrap.style.width     = prevWrapWidth;
+        captureTarget.style.width    = prevCaptureWidth;
+        captureTarget.style.overflow = prevCaptureOverflow;
+      });
+    }, 200);
+  });
+}
+
+function copyTableToClipboard() {
+  const table = document.querySelector(".schedule-table");
+  if (!table) { showToast(t("toastNoTable")); return; }
+  const range = document.createRange();
+  range.selectNode(table);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  try {
+    const ok = document.execCommand("copy");
+    showToast(ok ? t("toastCopied") : t("toastCopyFail"));
+  } catch(err) {
+    showToast(t("toastNoBrowser"));
+  }
+  selection.removeAllRanges();
+}
+
+if (!loadFromLocal()) {
+  addSingle();
+} else {
+  document.getElementById("btn-lang-th").classList.toggle("active", lang === "th");
+  document.getElementById("btn-lang-en").classList.toggle("active", lang === "en");
+  data.forEach(s => s.days.forEach(d => { if (d.date) d.dateLabel = formatDate(d.date); }));
+  updateStaticUI();
+  render();
+}
+</script>
+</body>
+</html>
