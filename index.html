@@ -6,13 +6,13 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://pangda19.github.io/sakurazaka-meet-tracker/" />
 <meta property="og:title" content="Sakurazaka46 Meet & Greet Tracker" />
-<meta property="og:description" content="15th Single『Lonesome rabbit / What's KAZOKU?』" />
+<meta property="og:description" content="16th Single『愛MUST BE』" />
 <meta property="og:image" content="https://pangda19.github.io/sakurazaka-meet-tracker/og-image.png" />
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:url" content="https://pangda19.github.io/sakurazaka-meet-tracker/" />
 <meta name="twitter:title" content="Sakurazaka46 Meet & Greet Tracker" />
-<meta name="twitter:description" content="for 15th Single『Lonesome rabbit / What's KAZOKU?』" />
+<meta name="twitter:description" content="for 16th Single『愛MUST BE』" />
 <meta name="twitter:image" content="https://pangda19.github.io/sakurazaka-meet-tracker/og-image.png" />
 <title>Sakurazaka46 Online Meet & Greet Tracker</title>
 <style>
@@ -212,7 +212,7 @@
   <div class="app" id="app-entry">
     <div class="app-header">
       <div class="app-title" id="app-title-text">Sakurazaka46 Online Meet &amp; Greet Tracker</div>
-      <div class="app-subtitle" id="app-subtitle-text">15th Double A-side Single『Lonesome rabbit / What's "KAZOKU"?』</div>
+      <div class="app-subtitle" id="app-subtitle-text">16th Single『愛MUST BE』</div>
     </div>
     <div id="singles-container"></div>
     <button class="btn-add-single" id="btn-add-single-main" onclick="addSingle()">＋ เพิ่มซิงเกิลใหม่</button>
@@ -256,7 +256,7 @@ function toJST(timeStr) {
 const TRANSLATIONS = {
   th: {
     appTitle: "Sakurazaka46 Online Meet & Greet Tracker",
-    appSubtitle: "16th Single『愛MUST BE",
+    appSubtitle: "16th Single『愛MUST BE』",
     addSingle: "＋ เพิ่มซิงเกิลใหม่",
     defaultSingleName: "Single",
     badgeCount: (n) => `♥ ${n} รายการ`,
@@ -293,17 +293,17 @@ const TRANSLATIONS = {
     gcalWith: "คุยกับ",
     imgFilename: (name) => `miit-schedule-${name}.png`,
     defaultDates: [
-      { label:"วันอาทิตย์ที่ 14 มิถุนายน", value:"2026-06-14" },
-      { label:"วันอาทิตย์ที่ 21 มิถุนายน", value:"2026-06-21" },
-      { label:"วันเสาร์ที่ 27 มิถุนายน", value:"2026-06-27" },
-      { label:"วันเสาร์ที่ 4 กรกฎาคม", value:"2026-07-04" },
-      { label:"วันเสาร์ที่ 12 กันยายน", value:"2026-09-12" },
-      { label:"วันอาทิตย์ที่ 13 กันยายน", value:"2026-09-13" },
+      { label:"วันอาทิตย์ที่ 18 ตุลาคม", value:"2026-10-18" },
+      { label:"วันเสาร์ที่ 31 ตุลาคม", value:"2026-10-31" },
+      { label:"วันเสาร์ที่ 21 พฤศจิกายน", value:"2026-11-21" },
+      { label:"วันอาทิตย์ที่ 22 พฤศจิกายน", value:"2026-11-22" },
+      { label:"วันอาทิตย์ที่ 29 พฤศจิกายน", value:"2026-11-29" },
+      { label:"วันอาทิตย์ที่ 13 ธันวาคม", value:"2026-12-13" },
     ],
   },
   en: {
     appTitle: "Sakurazaka46 Online Meet & Greet Tracker",
-    appSubtitle: "16th Single『愛MUST BE",
+    appSubtitle: "16th Single『愛MUST BE』",
     addSingle: "＋ Add New Single",
     defaultSingleName: "Single",
     badgeCount: (n) => `♥ ${n} booking${n!==1?"s":""}`,
@@ -482,7 +482,7 @@ function loadFromLocal() {
 function getMemberColor(name) { return memberColors[name] || { bg:"#f5f5f4", text:"#6b6b67" }; }
 
 function newSingle() {
-  if (singleCount === 0) singleCount = 14;
+  if (singleCount === 0) singleCount = 15;
   singleCount++;
   const defaultDates = TRANSLATIONS[lang].defaultDates;
   return {
