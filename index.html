@@ -462,11 +462,11 @@ function uid() { return Math.random().toString(36).slice(2,9); }
 
 function saveToLocal() {
   const state = { data, singleCount, openSingles, openBoos, lang };
-  localStorage.setItem("sakura_miit_storage", JSON.stringify(state));
+  localStorage.setItem("sakura_miit_storage_16th", JSON.stringify(state));
 }
 
 function loadFromLocal() {
-  const saved = localStorage.getItem("sakura_miit_storage");
+  const saved = localStorage.getItem("sakura_miit_storage_16th");
   if (saved) {
     const state = JSON.parse(saved);
     data = state.data;
