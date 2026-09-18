@@ -199,6 +199,38 @@
 
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2C2C2A; color:white; padding:10px 22px; border-radius:var(--radius-md); font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
   .toast.show { opacity:1; }
+  .download-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 18px;
+    z-index: 1001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+  }
+  .download-panel.show { display: flex; }
+  .download-panel-text { font-size: 12px; color: var(--text2); }
+  .download-panel-link,
+  .download-panel-close {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .download-panel-link { background: var(--pink); color: #fff; border: none; }
+  .download-panel-close { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
 </style>
 </head>
 <body>
@@ -244,6 +276,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="download-panel" id="download-panel" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
@@ -281,12 +314,17 @@ const TRANSLATIONS = {
     emptyDash: "—",
     toastCreatingImg: "กำลังสร้างภาพ...",
     toastImgSaved: "บันทึกภาพเรียบร้อย!",
+    toastImgReady: "สร้างภาพเรียบร้อย — แตะปุ่มเพื่อบันทึก",
+    toastShareCanceled: "ยกเลิกการบันทึกภาพ",
     toastNoData: "ยังไม่มีข้อมูล — ใส่เมมเบอร์ก่อนนะ",
     toastCalOpened: (n) => `เปิด ${n} event ใน Google Calendar`,
     toastCopied: "คัดลอกตารางแล้ว! นำไปกด 'วาง' ใน Sheets ได้เลย 🌸",
     toastCopyFail: "คัดลอกไม่สำเร็จ",
     toastNoBrowser: "เบราว์เซอร์ไม่รองรับการคัดลอก",
     toastNoTable: "ไม่พบตาราง — ลองกดดูตารางก่อนนะ",
+    fallbackText: "ถ้าไฟล์ไม่ดาวน์โหลดอัตโนมัติ ให้แตะปุ่มนี้",
+    fallbackOpen: "เปิด/บันทึกภาพ",
+    fallbackClose: "ปิด",
     sheetUnit: (n) => `${n} ใบ`,
     gcalTitle: (sName, booN, ms) => `[มีต] ${sName} บุ${booN}: ${ms}`,
     gcalEntry: (t) => `เข้าบุ ${t} น.`,
@@ -331,12 +369,17 @@ const TRANSLATIONS = {
     emptyDash: "—",
     toastCreatingImg: "Creating image...",
     toastImgSaved: "Image saved!",
+    toastImgReady: "Image ready — tap the button to save",
+    toastShareCanceled: "Image save canceled",
     toastNoData: "No data yet — add members first",
     toastCalOpened: (n) => `Opened ${n} event${n!==1?"s":""} in Google Calendar`,
     toastCopied: "Table copied! Paste into Sheets 🌸",
     toastCopyFail: "Copy failed",
     toastNoBrowser: "Browser does not support copy",
     toastNoTable: "Table not found — open schedule view first",
+    fallbackText: "If the file does not download automatically, tap this button",
+    fallbackOpen: "Open / Save Image",
+    fallbackClose: "Close",
     sheetUnit: (n) => `${n} sheet${n!==1?"s":""}`,
     gcalTitle: (sName, booN, ms) => `[Meet] ${sName} Slot ${booN}: ${ms}`,
     gcalEntry: (t) => `Check-in at ${toJST(t)} (JST)`,
@@ -520,6 +563,106 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+let pendingDownloadUrl = null;
+
+function dismissDownloadPanel() {
+  const panel = document.getElementById("download-panel");
+  panel.classList.remove("show");
+  panel.innerHTML = "";
+  if (pendingDownloadUrl) {
+    URL.revokeObjectURL(pendingDownloadUrl);
+    pendingDownloadUrl = null;
+  }
+}
+
+function safeFilename(name) {
+  return name.replace(/[\\/:*?"<>|]+/g, "_").trim() || "schedule";
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => {
+      if (blob) resolve(blob);
+      else reject(new Error("Canvas export failed"));
+    }, "image/png");
+  });
+}
+
+function isAppleMobile() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function showDownloadPanel(blobUrl, filename) {
+  dismissDownloadPanel();
+  pendingDownloadUrl = blobUrl;
+  const panel = document.getElementById("download-panel");
+
+  const text = document.createElement("span");
+  text.className = "download-panel-text";
+  text.textContent = t("fallbackText");
+
+  const link = document.createElement("a");
+  link.className = "download-panel-link";
+  link.href = blobUrl;
+  link.download = filename;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = t("fallbackOpen");
+
+  const close = document.createElement("button");
+  close.className = "download-panel-close";
+  close.type = "button";
+  close.textContent = t("fallbackClose");
+  close.onclick = dismissDownloadPanel;
+
+  panel.appendChild(text);
+  panel.appendChild(link);
+  panel.appendChild(close);
+  panel.classList.add("show");
+  showToast(t("toastImgReady"));
+}
+
+function downloadBlob(blob, filename) {
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  if (isAppleMobile()) {
+    showDownloadPanel(blobUrl, filename);
+  } else {
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    showToast(t("toastImgSaved"));
+  }
+}
+
+async function saveImageBlob(blob, filename, title) {
+  const shouldTryNativeShare = isAppleMobile();
+  const file = typeof File !== "undefined" ? new File([blob], filename, { type: "image/png" }) : null;
+  const canShareFile = !!(shouldTryNativeShare && file && navigator.canShare && navigator.share && navigator.canShare({ files: [file] }));
+
+  if (canShareFile) {
+    try {
+      await navigator.share({ files: [file], title });
+      showToast(t("toastImgSaved"));
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError") {
+        showToast(t("toastShareCanceled"));
+        return;
+      }
+      console.warn("navigator.share failed, falling back to download:", err);
+    }
+  }
+
+  downloadBlob(blob, filename);
 }
 
 function buildSelect(options, selected, cls, onChange) {
@@ -745,9 +888,14 @@ function saveAsImage() {
 
   if (!table) { showToast(t("toastNoData")); return; }
   showToast(t("toastCreatingImg"));
+  dismissDownloadPanel();
 
   // FIX 4: Snapshot the current language at capture time so filename is correct
   const captureLang = lang;
+  const filenameBase = safeFilename(singleName);
+  const filename = captureLang === "th"
+    ? `miit-schedule-${filenameBase}.png`
+    : `meet-schedule-${filenameBase}.png`;
 
   const prevWrapOverflow = scheduleWrap.style.overflow;
   const prevWrapMinWidth = scheduleWrap.style.minWidth;
@@ -780,7 +928,7 @@ function saveAsImage() {
         scrollY:     0,
         windowWidth:  captureFullWidth + 100,
         windowHeight: captureTarget.scrollHeight + 100,
-      }).then(canvas => {
+      }).then(async canvas => {
         // Restore original styles
         scheduleWrap.style.overflow  = prevWrapOverflow;
         scheduleWrap.style.minWidth  = prevWrapMinWidth;
@@ -788,14 +936,8 @@ function saveAsImage() {
         captureTarget.style.width    = prevCaptureWidth;
         captureTarget.style.overflow = prevCaptureOverflow;
 
-        const a = document.createElement("a");
-        const filename = captureLang === "th"
-          ? `miit-schedule-${singleName}.png`
-          : `meet-schedule-${singleName}.png`;
-        a.download = filename;
-        a.href = canvas.toDataURL("image/png");
-        a.click();
-        showToast(t("toastImgSaved"));
+        const blob = await canvasToBlob(canvas);
+        await saveImageBlob(blob, filename, singleName);
       }).catch(err => {
         console.error("html2canvas error:", err);
         // Restore on error too
@@ -804,6 +946,7 @@ function saveAsImage() {
         scheduleWrap.style.width     = prevWrapWidth;
         captureTarget.style.width    = prevCaptureWidth;
         captureTarget.style.overflow = prevCaptureOverflow;
+        showToast(t("toastCopyFail"));
       });
     }, 200);
   });
