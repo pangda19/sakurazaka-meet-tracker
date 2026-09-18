@@ -148,7 +148,7 @@
   select, input[type="text"], input[type="date"] { font-family:inherit; font-size:13px; background:var(--bg); color:var(--text); border:0.5px solid var(--border2); border-radius:var(--radius-md); padding:5px 8px 5px 8px; outline:none; }
   select:focus, input:focus { border-color:var(--blue-text); }
   .sel-name { flex:1; min-width:120px; ; padding-right:12px; }
-  .sel-sheets { width:76px; flex-shrink:0; }
+  .sel-sheets { width:92px; flex-shrink:0; }
   .btn-del-member { background:none; border:none; cursor:pointer; color:var(--text2); padding:4px 8px; font-size:16px; line-height:1; border-radius:4px; flex-shrink:0; margin-left:auto; }
   .btn-del-member:hover { color:var(--danger); background:rgba(226,75,74,.08); }
   .btn-add-member { width:100%; font-size:12px; color:var(--text2); background:none; border:0.5px dashed var(--border2); border-radius:var(--radius-md); padding:5px 10px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; }
@@ -238,6 +238,7 @@
 <div class="lang-toggle">
   <button class="lang-btn active" id="btn-lang-th" onclick="setLang('th')"> ไทย</button>
   <button class="lang-btn" id="btn-lang-en" onclick="setLang('en')"> EN</button>
+  <button class="lang-btn" id="btn-lang-ja" onclick="setLang('ja')">日本語</button>
 </div>
 
 <div class="page active" id="page-entry">
@@ -293,8 +294,8 @@ const TRANSLATIONS = {
     addSingle: "＋ เพิ่มซิงเกิลใหม่",
     defaultSingleName: "Single",
     badgeCount: (n) => `♥ ${n} รายการ`,
-    deleteSingle: "🗑 ลบ",
-    confirmDelete: "ลบซิงเกิลนี้?",
+    clearSingle: "เคลียร์",
+    confirmClear: "เคลียร์ข้อมูลเมมเบอร์ทั้งหมดในซิงเกิลนี้?",
     viewTable: "ดูตารางมีต",
     backBtn: "← กลับไปแก้ไข",
     gcalBtn: "📅 เพิ่มใน Google Calendar",
@@ -311,6 +312,7 @@ const TRANSLATIONS = {
     timeInfo: (entry, chat) => `⏱ ตรวจบัตร ${entry} น.  ·  คุย ${chat}`,
     entryTime: (t) => `${t} น.`,
     thHeaderEntry: (t) => `Check-in ${t} น.`,
+    tableHeaderTime: (entry, chat) => `Check-in ${entry} น.<br>${chat}`,
     emptyDash: "—",
     toastCreatingImg: "กำลังสร้างภาพ...",
     toastImgSaved: "บันทึกภาพเรียบร้อย!",
@@ -325,6 +327,7 @@ const TRANSLATIONS = {
     fallbackText: "ถ้าไฟล์ไม่ดาวน์โหลดอัตโนมัติ ให้แตะปุ่มนี้",
     fallbackOpen: "เปิด/บันทึกภาพ",
     fallbackClose: "ปิด",
+    sheetUnspecified: "ไม่ระบุ",
     sheetUnit: (n) => `${n} ใบ`,
     gcalTitle: (sName, booN, ms) => `[มีต] ${sName} บุ${booN}: ${ms}`,
     gcalEntry: (t) => `เข้าบุ ${t} น.`,
@@ -345,8 +348,8 @@ const TRANSLATIONS = {
     addSingle: "＋ Add New Single",
     defaultSingleName: "Single",
     badgeCount: (n) => `♥ ${n} booking${n!==1?"s":""}`,
-    deleteSingle: "🗑 Delete",
-    confirmDelete: "Delete this single?",
+    clearSingle: "Clear",
+    confirmClear: "Clear all member entries in this single?",
     viewTable: "♥ View Schedule",
     backBtn: "← Back to Edit",
     gcalBtn: "📅 Add to Google Calendar",
@@ -366,6 +369,10 @@ const TRANSLATIONS = {
     entryTime: (t) => `${toJST(t)} (JST)`,
 
     thHeaderEntry: (t) => `Check-in ${toJST(t)} (JST)`,
+    tableHeaderTime: (entry, chat) => {
+      const [start, end] = chat.split(' – ');
+      return `Check-in ${toJST(entry)} (JST)<br>Start ${toJST(start)} – ${toJST(end)}`;
+    },
     emptyDash: "—",
     toastCreatingImg: "Creating image...",
     toastImgSaved: "Image saved!",
@@ -380,6 +387,7 @@ const TRANSLATIONS = {
     fallbackText: "If the file does not download automatically, tap this button",
     fallbackOpen: "Open / Save Image",
     fallbackClose: "Close",
+    sheetUnspecified: "Not specified",
     sheetUnit: (n) => `${n} sheet${n!==1?"s":""}`,
     gcalTitle: (sName, booN, ms) => `[Meet] ${sName} Slot ${booN}: ${ms}`,
     gcalEntry: (t) => `Check-in at ${toJST(t)} (JST)`,
@@ -393,6 +401,65 @@ const TRANSLATIONS = {
       { label:"Sunday, November 29", value:"2026-11-29" },
       { label:"Sunday, December 13", value:"2026-12-13" },
     ],
+  },
+  ja: {
+    appTitle: "Sakurazaka46 Online Meet & Greet Tracker",
+    appSubtitle: "16th Single『愛MUST BE』",
+    addSingle: "＋ シングルを追加",
+    defaultSingleName: "Single",
+    badgeCount: (n) => `♥ ${n} 件`,
+    clearSingle: "クリア",
+    confirmClear: "このシングルのメンバー入力をすべてクリアしますか？",
+    viewTable: "ミーグリ表を見る",
+    backBtn: "← 編集に戻る",
+    gcalBtn: "📅 Google Calendar に追加",
+    saveImgBtn: "⬇ 画像として保存",
+    copyBtn: "📋 表をコピー",
+    tblTitlePrefix: "ミーグリ予定表 — ",
+    colDay: "開催日",
+    sessionLabel: (n) => `第${n}日程`,
+    dayLabel: (n) => `第${n}日程`,
+    booLabel: (n) => `${n}部`,
+    noDateSelected: "日付未選択",
+    addMember: "＋ メンバーを追加",
+    timeInfo: (entry, chat) => {
+      const [start, end] = chat.split(' – ');
+      return `⏱ 受付 ${toJST(entry)}  ·  開始 ${toJST(start)} – ${toJST(end)} (JST)`;
+    },
+    entryTime: (t) => `${toJST(t)} (JST)`,
+    thHeaderEntry: (t) => `受付 ${toJST(t)} (JST)`,
+    tableHeaderTime: (entry, chat) => {
+      const [start, end] = chat.split(' – ');
+      return `受付 ${toJST(entry)} (JST)<br>開始 ${toJST(start)} – ${toJST(end)}`;
+    },
+    emptyDash: "—",
+    toastCreatingImg: "画像を作成中...",
+    toastImgSaved: "画像を保存しました！",
+    toastImgReady: "画像を作成しました — ボタンをタップして保存してください",
+    toastShareCanceled: "画像の保存をキャンセルしました",
+    toastNoData: "まだデータがありません — 先にメンバーを追加してください",
+    toastCalOpened: (n) => `${n}件のイベントを Google Calendar で開きました`,
+    toastCopied: "表をコピーしました！Sheets に貼り付けできます 🌸",
+    toastCopyFail: "コピーに失敗しました",
+    toastNoBrowser: "このブラウザはコピーに対応していません",
+    toastNoTable: "表が見つかりません — 先に予定表を開いてください",
+    fallbackText: "自動で保存されない場合は、このボタンをタップしてください",
+    fallbackOpen: "画像を開く / 保存",
+    fallbackClose: "閉じる",
+    sheetUnspecified: "未指定",
+    sheetUnit: (n) => `${n}枚`,
+    gcalTitle: (sName, booN, ms) => `[ミーグリ] ${sName} ${booN}部: ${ms}`,
+    gcalEntry: (t) => `受付 ${toJST(t)} (JST)`,
+    gcalWith: "参加メンバー",
+    imgFilename: (name) => `meet-schedule-${name}.png`,
+    defaultDates: [
+      { label:"10月18日（日）", value:"2026-10-18" },
+      { label:"10月31日（土）", value:"2026-10-31" },
+      { label:"11月21日（土）", value:"2026-11-21" },
+      { label:"11月22日（日）", value:"2026-11-22" },
+      { label:"11月29日（日）", value:"2026-11-29" },
+      { label:"12月13日（日）", value:"2026-12-13" },
+    ],
   }
 };
 
@@ -400,6 +467,7 @@ const TH_DAYS = ["อาทิตย์","จันทร์","อังคา�
 const TH_MONTHS = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const EN_DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const EN_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const JA_DAYS = ["日","月","火","水","木","金","土"];
 
 function formatDateTH(val) {
   if (!val) return "";
@@ -411,20 +479,35 @@ function formatDateEN(val) {
   const d = new Date(val + "T12:00:00");
   return `${EN_DAYS[d.getDay()]}, ${EN_MONTHS[d.getMonth()]} ${d.getDate()}`;
 }
-function formatDate(val) { return lang === "th" ? formatDateTH(val) : formatDateEN(val); }
+function formatDateJA(val) {
+  if (!val) return "";
+  const d = new Date(val + "T12:00:00");
+  return `${d.getMonth() + 1}月${d.getDate()}日（${JA_DAYS[d.getDay()]}）`;
+}
+function formatDate(val) {
+  if (lang === "th") return formatDateTH(val);
+  if (lang === "ja") return formatDateJA(val);
+  return formatDateEN(val);
+}
 
-let lang = localStorage.getItem("sakura_lang") || "th";
+const savedLang = localStorage.getItem("sakura_lang");
+let lang = TRANSLATIONS[savedLang] ? savedLang : "th";
 
 function t(key, ...args) {
   const val = TRANSLATIONS[lang][key];
   return typeof val === "function" ? val(...args) : val;
 }
 
+function updateLangButtons() {
+  document.getElementById("btn-lang-th").classList.toggle("active", lang === "th");
+  document.getElementById("btn-lang-en").classList.toggle("active", lang === "en");
+  document.getElementById("btn-lang-ja").classList.toggle("active", lang === "ja");
+}
+
 function setLang(l) {
   lang = l;
   localStorage.setItem("sakura_lang", l);
-  document.getElementById("btn-lang-th").classList.toggle("active", l === "th");
-  document.getElementById("btn-lang-en").classList.toggle("active", l === "en");
+  updateLangButtons();
   updateStaticUI();
   data.forEach(s => s.days.forEach(d => { if (d.date) d.dateLabel = formatDate(d.date); }));
   render();
@@ -516,7 +599,7 @@ function loadFromLocal() {
     singleCount = state.singleCount;
     openSingles = state.openSingles || {};
     openBoos = state.openBoos || {};
-    if (state.lang) { lang = state.lang; }
+    if (state.lang && TRANSLATIONS[state.lang]) { lang = state.lang; }
     return true;
   }
   return false;
@@ -542,20 +625,51 @@ function newSingle() {
 }
 
 function addSingle() { const s = newSingle(); data.push(s); openSingles[s.id] = true; render(); }
-function deleteSingle(sid) { if (!confirm(t("confirmDelete"))) return; data = data.filter(s => s.id !== sid); render(); }
+function clearSingle(sid) {
+  if (!confirm(t("confirmClear"))) return;
+  const single = data.find(s => s.id === sid);
+  if (!single) return;
+  single.days.forEach(day => day.boos.forEach(boo => { boo.members = []; }));
+  Object.keys(openBoos).forEach(key => {
+    if (key.startsWith(`${sid}-`)) delete openBoos[key];
+  });
+  render();
+}
 function toggleSingle(sid) { openSingles[sid] = !openSingles[sid]; render(); }
 function toggleBoo(key) { openBoos[key] = !openBoos[key]; render(); }
 
 function addMember(sid, di, bi) { data.find(s=>s.id===sid).days[di].boos[bi].members.push({id:uid(),name:MEMBERS[0],sheets:1}); render(); }
 function removeMember(sid, di, bi, mid) { const b=data.find(s=>s.id===sid).days[di].boos[bi]; b.members=b.members.filter(m=>m.id!==mid); render(); }
 function updateMemberName(sid,di,bi,mid,v) { data.find(s=>s.id===sid).days[di].boos[bi].members.find(m=>m.id===mid).name=v; render(); }
-function updateMemberSheets(sid,di,bi,mid,v){ data.find(s=>s.id===sid).days[di].boos[bi].members.find(m=>m.id===mid).sheets=parseInt(v); render(); }
+function updateMemberSheets(sid,di,bi,mid,v){ data.find(s=>s.id===sid).days[di].boos[bi].members.find(m=>m.id===mid).sheets=parseSheetValue(v); render(); }
 function updateSingleName(sid, v) { data.find(s=>s.id===sid).name=v; saveToLocal(); }
 function updateDayDate(sid, di, v) { const d=data.find(s=>s.id===sid).days[di]; d.date=v; d.dateLabel=formatDate(v); render(); }
 
+function parseSheetValue(v) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function hasSheetValue(sheets) {
+  return Number.isInteger(sheets) && sheets > 0;
+}
+
+function sheetLabel(sheets) {
+  return hasSheetValue(sheets) ? t("sheetUnit", sheets) : "";
+}
+
+function memberLabel(member, options = {}) {
+  const label = sheetLabel(member.sheets);
+  if (!label) return member.name;
+  if (options.shortName) return `${member.name.split(" ")[0]} ${label}`;
+  if (options.brackets) return `${member.name} [${label}]`;
+  if (options.parens) return `${member.name}(${label})`;
+  return `${member.name} ${label}`;
+}
+
 function getBooSummary(boo) {
   if (!boo.members.length) return "";
-  return boo.members.map(m => `${m.name.split(" ")[0]} ${t("sheetUnit", m.sheets)}`).join(", ");
+  return boo.members.map(m => memberLabel(m, { shortName: true })).join(", ");
 }
 
 function showToast(msg) {
@@ -708,11 +822,7 @@ function renderTablePage(single) {
     const th = document.createElement("th");
     th.className = "boo-col";
 
-    const [start, end] = bt.chat.split(' – ');
-    // FIX 2: Both TH and EN now use Check-in (via thHeaderEntry translation key)
-    const displayTime = lang === 'th'
-      ? `${t("thHeaderEntry", bt.entry)}<br>${bt.chat}`
-      : `${t("thHeaderEntry", bt.entry)}<br>Start ${toJST(start)} – ${toJST(end)}`;
+    const displayTime = t("tableHeaderTime", bt.entry, bt.chat);
 
     th.innerHTML = `
       <div style="font-size:13px;margin-bottom:4px;">${t("booLabel", bt.num)}</div>
@@ -738,7 +848,7 @@ function renderTablePage(single) {
         boo.members.forEach((m, idx) => {
           const chip = document.createElement("span");
           chip.className = "member-chip";
-          chip.textContent = `${m.name} [${t("sheetUnit", m.sheets)}]`;
+          chip.textContent = memberLabel(m, { brackets: true });
           const colors = getMemberColor(m.name);
           chip.style.backgroundColor = colors.bg;
           chip.style.color = colors.text;
@@ -784,8 +894,8 @@ function render() {
 
     const rightDiv = document.createElement("div"); rightDiv.className = "header-right";
     const delBtn = document.createElement("button"); delBtn.className = "btn-delete-single";
-    delBtn.textContent = t("deleteSingle");
-    delBtn.onclick = e => { e.stopPropagation(); deleteSingle(single.id); };
+    delBtn.textContent = t("clearSingle");
+    delBtn.onclick = e => { e.stopPropagation(); clearSingle(single.id); };
     const chev = document.createElement("span");
     chev.className = "chevron" + (isOpen ? " open" : ""); chev.textContent = "▾";
     rightDiv.appendChild(delBtn); rightDiv.appendChild(chev);
@@ -828,8 +938,9 @@ function render() {
             boo.members.forEach(m => {
               const row = document.createElement("div"); row.className = "member-row";
               const ns = buildSelect(MEMBERS, m.name, "sel-name", val => updateMemberName(single.id, di, bi, m.id, val));
-              const sheetOptions = Array.from({length:20}, (_,i) => t("sheetUnit", i+1));
-              const ss = buildSelect(sheetOptions, t("sheetUnit", m.sheets), "sel-sheets", val => updateMemberSheets(single.id, di, bi, m.id, parseInt(val)));
+              const sheetOptions = [t("sheetUnspecified"), ...Array.from({length:20}, (_,i) => t("sheetUnit", i+1))];
+              const selectedSheet = hasSheetValue(m.sheets) ? t("sheetUnit", m.sheets) : t("sheetUnspecified");
+              const ss = buildSelect(sheetOptions, selectedSheet, "sel-sheets", val => updateMemberSheets(single.id, di, bi, m.id, val));
               const db = document.createElement("button"); db.className = "btn-del-member"; db.textContent = "✕";
               db.onclick = () => removeMember(single.id, di, bi, m.id);
               row.appendChild(ns); row.appendChild(ss); row.appendChild(db);
@@ -866,7 +977,7 @@ function exportToGCal() {
     day.boos.forEach((boo, bi) => {
       if (!boo.members.length) return;
       const bt = BOO_TIMES[bi];
-      const ms = boo.members.map(m => `${m.name}(${t("sheetUnit", m.sheets)})`).join(", ");
+      const ms = boo.members.map(m => memberLabel(m, { parens: true })).join(", ");
       const [sH,sM] = bt.chat.split(" – ")[0].split(":").map(Number);
       const [eH,eM] = bt.chat.split(" – ")[1].split(":").map(Number);
       const ds = day.date.replace(/-/g,"");
@@ -893,9 +1004,7 @@ function saveAsImage() {
   // FIX 4: Snapshot the current language at capture time so filename is correct
   const captureLang = lang;
   const filenameBase = safeFilename(singleName);
-  const filename = captureLang === "th"
-    ? `miit-schedule-${filenameBase}.png`
-    : `meet-schedule-${filenameBase}.png`;
+  const filename = TRANSLATIONS[captureLang].imgFilename(filenameBase);
 
   const prevWrapOverflow = scheduleWrap.style.overflow;
   const prevWrapMinWidth = scheduleWrap.style.minWidth;
@@ -970,10 +1079,11 @@ function copyTableToClipboard() {
 }
 
 if (!loadFromLocal()) {
+  updateLangButtons();
+  updateStaticUI();
   addSingle();
 } else {
-  document.getElementById("btn-lang-th").classList.toggle("active", lang === "th");
-  document.getElementById("btn-lang-en").classList.toggle("active", lang === "en");
+  updateLangButtons();
   data.forEach(s => s.days.forEach(d => { if (d.date) d.dateLabel = formatDate(d.date); }));
   updateStaticUI();
   render();
